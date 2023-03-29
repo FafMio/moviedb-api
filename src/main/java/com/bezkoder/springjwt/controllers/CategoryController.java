@@ -1,34 +1,25 @@
 package com.bezkoder.springjwt.controllers;
 
-import com.bezkoder.springjwt.models.*;
-import com.bezkoder.springjwt.payload.request.LoginRequest;
-import com.bezkoder.springjwt.payload.request.SignupRequest;
-import com.bezkoder.springjwt.payload.response.JwtResponse;
-import com.bezkoder.springjwt.payload.response.MessageResponse;
+import com.bezkoder.springjwt.models.Category;
 import com.bezkoder.springjwt.repository.CategoryRepository;
 import com.bezkoder.springjwt.repository.MovieRepository;
 import com.bezkoder.springjwt.repository.RoleRepository;
 import com.bezkoder.springjwt.repository.UserRepository;
 import com.bezkoder.springjwt.security.jwt.JwtUtils;
-import com.bezkoder.springjwt.security.services.UserDetailsImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
-import javax.validation.Valid;
-import java.util.HashSet;
+import java.util.HashMap;
 import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
@@ -36,6 +27,12 @@ import java.util.stream.Collectors;
 public class CategoryController {
     @Autowired
     AuthenticationManager authenticationManager;
+
+    @Autowired
+    PasswordEncoder encoder;
+
+    @Autowired
+    JwtUtils jwtUtils;
 
     @Autowired
     UserRepository userRepository;
@@ -49,103 +46,82 @@ public class CategoryController {
     @Autowired
     CategoryRepository categoryRepository;
 
-    @Autowired
-    PasswordEncoder encoder;
-
-    @Autowired
-    JwtUtils jwtUtils;
-
-
-    @GetMapping(value = "/", params = {"page", "size", "sort"})
-    public ResponseEntity<?> getAllCategories(@RequestParam("page") Integer page,
-                                   @RequestParam("size") Integer size,
-                                   @RequestParam("sort") String sortDirection
+    @GetMapping(value = "/all")
+    @ResponseStatus(HttpStatus.ACCEPTED)
+    @PreAuthorize("permitAll()")
+    public ResponseEntity<?> getAllCategories(@RequestParam(value = "page", required = false, defaultValue = "0") Integer page,
+                                              @RequestParam(value = "size", required = false, defaultValue = "5") Integer size,
+                                              @RequestParam(value = "sortDirection", required = false, defaultValue = "ASC") String sortDirection
     ) {
         Sort sort = sortDirection.equalsIgnoreCase(Sort.Direction.ASC.name()) ? Sort.by("title").ascending() : Sort.by("title").descending();
         Pageable pageable = PageRequest.of(page, size, sort);
 
         Page<Category> categories = categoryRepository.findAll(pageable);
         List<Category> listOfCategories = categories.getContent();
+        HashMap<String, Object> response = new HashMap<String, Object>();
 
+        HashMap<String, Object> pageData = new HashMap<String, Object>();
+        pageData.put("currentPage", categories.getNumber());
+        pageData.put("totalPages", categories.getTotalPages());
+        pageData.put("itemsPerPage", categories.getSize());
+        pageData.put("itemsCount", categories.getTotalElements());
+        pageData.put("isLastPage", categories.isLast());
 
-        return ResponseEntity.ok(
-                listOfCategories
-        );
+        response.put("content", listOfCategories);
+        response.put("pagination", pageData);
+
+        return ResponseEntity.ok(response);
     }
 
-    @PostMapping("/signin")
-    public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
-
-        Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword()));
-
-        SecurityContextHolder.getContext().setAuthentication(authentication);
-        String jwt = jwtUtils.generateJwtToken(authentication);
-
-        UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
-        List<String> roles = userDetails.getAuthorities().stream()
-                .map(item -> item.getAuthority())
-                .collect(Collectors.toList());
-
-        return ResponseEntity.ok(new JwtResponse(jwt,
-                userDetails.getId(),
-                userDetails.getUsername(),
-                userDetails.getEmail(),
-                roles));
-    }
-
-    @PostMapping("/signup")
-    public ResponseEntity<?> registerUser(@Valid @RequestBody SignupRequest signUpRequest) {
-        if (userRepository.existsByUsername(signUpRequest.getUsername())) {
-            return ResponseEntity
-                    .badRequest()
-                    .body(new MessageResponse("Error: Username is already taken!"));
-        }
-
-        if (userRepository.existsByEmail(signUpRequest.getEmail())) {
-            return ResponseEntity
-                    .badRequest()
-                    .body(new MessageResponse("Error: Email is already in use!"));
-        }
-
-        // Create new user's account
-        User user = new User(signUpRequest.getUsername(),
-                signUpRequest.getEmail(),
-                encoder.encode(signUpRequest.getPassword()));
-
-        Set<String> strRoles = signUpRequest.getRole();
-        Set<Role> roles = new HashSet<>();
-
-        if (strRoles == null) {
-            Role userRole = roleRepository.findByName(ERole.ROLE_USER)
-                    .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
-            roles.add(userRole);
+    @GetMapping("/{id}")
+    public ResponseEntity<?> getOne(@PathVariable Long id) {
+        Category category = categoryRepository.findCategoryById(id);
+        if (category != null) {
+            return ResponseEntity.ok(category);
         } else {
-            strRoles.forEach(role -> {
-                switch (role) {
-                    case "admin":
-                        Role adminRole = roleRepository.findByName(ERole.ROLE_ADMIN)
-                                .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
-                        roles.add(adminRole);
-
-                        break;
-                    case "mod":
-                        Role modRole = roleRepository.findByName(ERole.ROLE_MODERATOR)
-                                .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
-                        roles.add(modRole);
-
-                        break;
-                    default:
-                        Role userRole = roleRepository.findByName(ERole.ROLE_USER)
-                                .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
-                        roles.add(userRole);
-                }
-            });
+            return ResponseEntity.notFound().build();
         }
-
-        user.setRoles(roles);
-        userRepository.save(user);
-
-        return ResponseEntity.ok(new MessageResponse("User registered successfully!"));
     }
+
+    @PostMapping("/add")
+    @ResponseStatus(HttpStatus.CREATED)
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<?> create(@RequestBody Category category) {
+
+        Object response = categoryRepository.save(category);
+
+        return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/edit/{id}")
+    @PreAuthorize("hasRole('MODERATOR') or hasRole('ADMIN')")
+    public ResponseEntity<?> update(@PathVariable Long id, @RequestBody Category category) {
+
+        Category currentCategory = categoryRepository.findCategoryById(id);
+
+        if (currentCategory != null) {
+            currentCategory.setHexColor(category.getHexColor());
+            currentCategory.setTitle(category.getTitle());
+
+            Object response = categoryRepository.save(currentCategory);
+
+            return ResponseEntity.accepted().body(response);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<?> delete(@PathVariable Long id) {
+
+        Category currentCategory = categoryRepository.findCategoryById(id);
+        if (currentCategory != null) {
+            categoryRepository.delete(currentCategory);
+            return ResponseEntity.noContent().build();
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
 }

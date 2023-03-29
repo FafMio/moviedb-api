@@ -1,5 +1,7 @@
 package com.bezkoder.springjwt.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
@@ -34,7 +36,7 @@ public class Movie {
     @Size(max = 10)
     private String tmdbId;
 
-    @NotBlank
+    @JsonIgnore
     private Boolean isVerified;
 
     @NotBlank
@@ -51,14 +53,13 @@ public class Movie {
 
     }
 
-    public Movie(Long id, String title, Date releasedAt, String imageUrl, String originCountry, String tmdbId, Boolean isVerified, String originCountryShort, Set<Category> categories) {
+    public Movie(Long id, String title, Date releasedAt, String imageUrl, String originCountry, String tmdbId, String originCountryShort, Set<Category> categories) {
         this.id = id;
         this.title = title;
         this.releasedAt = releasedAt;
         this.imageUrl = imageUrl;
         this.originCountry = originCountry;
         this.tmdbId = tmdbId;
-        this.isVerified = isVerified;
         this.originCountryShort = originCountryShort;
         this.categories = categories;
     }

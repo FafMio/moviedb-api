@@ -9,6 +9,7 @@ import org.springframework.stereotype.Repository;
 import javax.validation.constraints.NotBlank;
 import java.util.Collection;
 import java.util.Date;
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -18,5 +19,9 @@ public interface MovieRepository extends JpaRepository<Movie, Long> {
     Optional<Movie> findByReleasedAtBetween(Date releasedAtTimeStart, Date releasedAtTimeEnd);
 
     Boolean existsByTitle(String title);
+
+    Movie findMovieById(Long id);
+
+    List<Movie> findMoviesByTitleLike(String title);
 
 }
