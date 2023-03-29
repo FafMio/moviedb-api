@@ -2,6 +2,7 @@ package com.bezkoder.springjwt.models;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
 @Entity
@@ -12,10 +13,12 @@ public class Category {
     private Long id;
 
     @NotBlank
+    @NotNull
     @Size(max = 20)
     private String title;
 
     @NotBlank
+    @NotNull
     @Size(max = 8)
     private String hexColor;
 
