@@ -26,29 +26,13 @@ import java.util.List;
 @RequestMapping("/api/category")
 public class CategoryController {
     @Autowired
-    AuthenticationManager authenticationManager;
-
-    @Autowired
-    PasswordEncoder encoder;
-
-    @Autowired
-    JwtUtils jwtUtils;
-
-    @Autowired
-    UserRepository userRepository;
-
-    @Autowired
-    RoleRepository roleRepository;
-
-    @Autowired
     MovieRepository movieRepository;
 
     @Autowired
     CategoryRepository categoryRepository;
 
-    @GetMapping(value = "/all")
+    @GetMapping(value = "/")
     @ResponseStatus(HttpStatus.ACCEPTED)
-    @PreAuthorize("permitAll()")
     public ResponseEntity<?> getAllCategories(@RequestParam(value = "page", required = false, defaultValue = "0") Integer page,
                                               @RequestParam(value = "size", required = false, defaultValue = "5") Integer size,
                                               @RequestParam(value = "sortDirection", required = false, defaultValue = "ASC") String sortDirection
@@ -83,7 +67,7 @@ public class CategoryController {
         }
     }
 
-    @PostMapping("/add")
+    @PostMapping("/")
     @ResponseStatus(HttpStatus.CREATED)
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> create(@RequestBody Category category) {
@@ -93,7 +77,7 @@ public class CategoryController {
         return ResponseEntity.ok(response);
     }
 
-    @PostMapping("/edit/{id}")
+    @PostMapping("/{id}")
     @PreAuthorize("hasRole('MODERATOR') or hasRole('ADMIN')")
     public ResponseEntity<?> update(@PathVariable Long id, @RequestBody Category category) {
 

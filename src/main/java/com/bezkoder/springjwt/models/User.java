@@ -3,6 +3,7 @@ package com.bezkoder.springjwt.models;
 import javax.persistence.*;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.util.HashSet;
 import java.util.Set;
@@ -19,15 +20,18 @@ public class User {
     private Long id;
 
     @NotBlank
+    @NotNull
     @Size(max = 20)
     private String username;
 
     @NotBlank
+    @NotNull
     @Size(max = 50)
     @Email
     private String email;
 
     @NotBlank
+    @NotNull
     @Size(max = 120)
     private String password;
 
@@ -36,12 +40,6 @@ public class User {
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "role_id"))
     private Set<Role> roles = new HashSet<>();
-
-    @OneToMany(fetch = FetchType.LAZY)
-    @JoinTable(name = "user_movies",
-            joinColumns = @JoinColumn(name = "movie_id"),
-            inverseJoinColumns = @JoinColumn(name = "user_id"))
-    private Set<Category> addedMovies = new HashSet<>();
 
     public User() {
     }
@@ -90,13 +88,5 @@ public class User {
 
     public void setRoles(Set<Role> roles) {
         this.roles = roles;
-    }
-
-    public Set<Category> getAddedMovies() {
-        return addedMovies;
-    }
-
-    public void setAddedMovies(Set<Category> addedMovies) {
-        this.addedMovies = addedMovies;
     }
 }

@@ -2,6 +2,8 @@ package com.bezkoder.springjwt.repository;
 
 import com.bezkoder.springjwt.models.Movie;
 import com.bezkoder.springjwt.models.User;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.stereotype.Repository;
@@ -24,4 +26,6 @@ public interface MovieRepository extends JpaRepository<Movie, Long> {
 
     List<Movie> findMoviesByTitleLike(String title);
 
+    Page<Movie> findAllByIsVerifiedTrue(Pageable pageable);
+    Page<Movie> findAllByIsVerifiedFalse(Pageable pageable);
 }

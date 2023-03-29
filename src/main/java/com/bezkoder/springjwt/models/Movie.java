@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.util.Date;
 import java.util.HashSet;
@@ -17,29 +18,33 @@ public class Movie {
     private Long id;
 
     @NotBlank
+    @NotNull
     @Size(max = 255)
     private String title;
 
-    @NotBlank
+    @NotNull
     @Temporal(TemporalType.DATE)
     private Date releasedAt;
 
     @NotBlank
+    @NotNull
     @Size(max = 255)
     private String imageUrl;
 
     @NotBlank
+    @NotNull
     @Size(max = 50)
     private String originCountry;
 
-    @NotBlank
     @Size(max = 10)
     private String tmdbId;
 
     @JsonIgnore
+    @NotNull
     private Boolean isVerified;
 
     @NotBlank
+    @NotNull
     @Size(max = 5)
     private String originCountryShort;
 

@@ -1,6 +1,7 @@
 package com.bezkoder.springjwt.models;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 
 @Entity
 @Table(name = "roles")
@@ -11,6 +12,7 @@ public class Role {
 
     @Enumerated(EnumType.STRING)
     @Column(length = 20)
+    @NotNull
     private ERole name;
 
     public Role() {
