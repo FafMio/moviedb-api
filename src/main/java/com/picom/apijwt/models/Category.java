@@ -20,17 +20,23 @@ public class Category {
     @NotBlank
     @NotNull
     @Size(max = 8)
-    private String hexColor;
+    private String bgHexColor;
+
+    @NotBlank
+    @NotNull
+    @Size(max = 8)
+    private String textHexColor;
 
 
     public Category() {
 
     }
 
-    public Category(Long id, String title, String hexColor) {
+    public Category(Long id, String title, String bgHexColor, String textHexColor) {
         this.id = id;
         this.title = title;
-        this.hexColor = hexColor;
+        this.bgHexColor = bgHexColor;
+        this.textHexColor = textHexColor;
     }
 
     public Long getId() {
@@ -49,11 +55,19 @@ public class Category {
         this.title = title;
     }
 
-    public String getHexColor() {
-        return hexColor;
+    public String getBgHexColor() {
+        return bgHexColor;
     }
 
-    public void setHexColor(String hexColor) {
-        this.hexColor = hexColor;
+    public void setBgHexColor(String bgHexColor) {
+        this.bgHexColor = bgHexColor;
+    }
+
+    public String getTextHexColor() {
+        return textHexColor;
+    }
+
+    public void setTextHexColor(String textHexColor) {
+        this.textHexColor = textHexColor;
     }
 }

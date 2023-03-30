@@ -29,7 +29,7 @@ public class CategoryController {
     @GetMapping(value = "/")
     @ResponseStatus(HttpStatus.ACCEPTED)
     public ResponseEntity<?> getAllCategories(@RequestParam(value = "page", required = false, defaultValue = "0") Integer page,
-                                              @RequestParam(value = "size", required = false, defaultValue = "5") Integer size,
+                                              @RequestParam(value = "size", required = false, defaultValue = "20") Integer size,
                                               @RequestParam(value = "sortDirection", required = false, defaultValue = "ASC") String sortDirection
     ) {
         Sort sort = sortDirection.equalsIgnoreCase(Sort.Direction.ASC.name()) ? Sort.by("title").ascending() : Sort.by("title").descending();
@@ -63,7 +63,6 @@ public class CategoryController {
     }
 
     @PostMapping("/")
-    @ResponseStatus(HttpStatus.CREATED)
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> create(@RequestBody Category category) {
 
@@ -78,29 +77,30 @@ public class CategoryController {
 
         Category currentCategory = categoryRepository.findCategoryById(id);
 
-        if (currentCategory != null) {
-            currentCategory.setHexColor(category.getHexColor());
-            currentCategory.setTitle(category.getTitle());
-
-            Object response = categoryRepository.save(currentCategory);
-
-            return ResponseEntity.accepted().body(response);
-        } else {
+        if (currentCategory == null) {
             return ResponseEntity.notFound().build();
         }
+
+        currentCategory.setTextHexColor(category.getTextHexColor());
+        currentCategory.setBgHexColor(category.getBgHexColor());
+        currentCategory.setTitle(category.getTitle());
+
+        Object response = categoryRepository.save(currentCategory);
+
+        return ResponseEntity.accepted().body(response);
     }
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> delete(@PathVariable Long id) {
-
         Category currentCategory = categoryRepository.findCategoryById(id);
-        if (currentCategory != null) {
-            categoryRepository.delete(currentCategory);
-            return ResponseEntity.noContent().build();
-        } else {
+
+        if (currentCategory == null) {
             return ResponseEntity.notFound().build();
         }
+
+        categoryRepository.delete(currentCategory);
+        return ResponseEntity.noContent().build();
     }
 
 }

@@ -1,18 +1,17 @@
 package com.picom.apijwt.repository;
 
+import com.picom.apijwt.models.Category;
 import com.picom.apijwt.models.Movie;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Repository
 public interface MovieRepository extends JpaRepository<Movie, Long> {
-    Optional<Movie> findByTitle(String title);
 
     Optional<Movie> findByReleasedAtBetween(Date releasedAtTimeStart, Date releasedAtTimeEnd);
 
@@ -22,6 +21,8 @@ public interface MovieRepository extends JpaRepository<Movie, Long> {
 
     List<Movie> findMoviesByTitleLike(String title);
 
+    Page<Movie> findAllByTitleLike(String title, Pageable pageable);
     Page<Movie> findAllByIsVerifiedTrue(Pageable pageable);
     Page<Movie> findAllByIsVerifiedFalse(Pageable pageable);
+    Page<Movie> findAllByCategoriesContains(Category categories, Pageable pageable);
 }

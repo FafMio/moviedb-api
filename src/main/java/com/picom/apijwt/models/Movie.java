@@ -39,8 +39,10 @@ public class Movie {
     @Size(max = 10)
     private String tmdbId;
 
-    @JsonIgnore
+    @Column(columnDefinition = "TEXT")
+    private String synopsis;
 
+    @JsonIgnore
     private Boolean isVerified = false;
 
     @NotBlank
@@ -58,7 +60,7 @@ public class Movie {
 
     }
 
-    public Movie(Long id, String title, Date releasedAt, String imageUrl, String originCountry, String tmdbId, String originCountryShort, Set<Category> categories) {
+    public Movie(Long id, String title, Date releasedAt, String imageUrl, String originCountry, String tmdbId, String originCountryShort, Set<Category> categories, String synopsis) {
         this.id = id;
         this.title = title;
         this.releasedAt = releasedAt;
@@ -67,6 +69,7 @@ public class Movie {
         this.tmdbId = tmdbId;
         this.originCountryShort = originCountryShort;
         this.categories = categories;
+        this.synopsis = synopsis;
     }
 
     public Long getId() {
@@ -139,5 +142,13 @@ public class Movie {
 
     public void setCategories(Set<Category> categories) {
         this.categories = categories;
+    }
+
+    public String getSynopsis() {
+        return synopsis;
+    }
+
+    public void setSynopsis(String synopsis) {
+        this.synopsis = synopsis;
     }
 }

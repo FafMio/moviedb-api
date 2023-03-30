@@ -9,11 +9,11 @@
 		<version>2.7.3</version>
 		<relativePath /> <!-- lookup parent from repository -->
 	</parent>
-	<groupId>com.bezkoder</groupId>
-	<artifactId>spring-boot-security-jwt</artifactId>
+	<groupId>com.allocinoche</groupId>
+	<artifactId>api</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>spring-boot-security-jwt</name>
-	<description>Demo project for Spring Boot Security - JWT</description>
+	<name>api</name>
+	<description>API for AlloCinoche using JWT Token</description>
 
 	<properties>
 		<java.version>1.8</java.version>
@@ -63,6 +63,11 @@
 			<artifactId>spring-security-test</artifactId>
 			<scope>test</scope>
 		</dependency>
+
+		<dependency>
+			<groupId>javax.servlet</groupId>
+			<artifactId>jstl</artifactId>
+		</dependency>
 	</dependencies>
 
 	<build>
@@ -80,7 +85,7 @@
 						<manifest>
 							<addClasspath>true</addClasspath>
 							<classpathPrefix>lib/</classpathPrefix>
-							<mainClass>com.picom.apijwt.SpringBootSecurityJwtApplication</mainClass>
+							<mainClass>com.picom.apijwt.AlloCinocheApi</mainClass>
 						</manifest>
 					</archive>
 				</configuration>
