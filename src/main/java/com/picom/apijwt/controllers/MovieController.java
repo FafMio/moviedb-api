@@ -1,6 +1,5 @@
 package com.picom.apijwt.controllers;
 
-import com.fasterxml.jackson.core.JsonEncoding;
 import com.picom.apijwt.models.Category;
 import com.picom.apijwt.models.Movie;
 import com.picom.apijwt.repository.CategoryRepository;
@@ -15,7 +14,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
@@ -34,7 +32,7 @@ public class MovieController {
             @RequestParam(value = "page", required = false, defaultValue = "0") Integer page,
             @RequestParam(value = "size", required = false, defaultValue = "5") Integer size,
             @RequestParam(value = "sortBy", required = false, defaultValue = "title") String sortBy,
-            @RequestParam(value = "sortDirection", required = false, defaultValue = "DESC") String sortDirection
+            @RequestParam(value = "sortDirection", required = false, defaultValue = "ASC") String sortDirection
     ) {
         Sort sort = sortDirection.equalsIgnoreCase(Sort.Direction.ASC.name()) ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
         Pageable pageable = PageRequest.of(page, size, sort);
@@ -98,7 +96,7 @@ public class MovieController {
     ) {
 
         Category categoryObj = categoryRepository.findCategoryByTitle(category);
-        if(categoryObj == null) {
+        if (categoryObj == null) {
             HashMap<Object, Object> response = new HashMap<Object, Object>();
             response.put("message", "Category doesn't exists.");
             return ResponseEntity.status(404).contentType(MediaType.APPLICATION_JSON).body(response);
@@ -163,6 +161,24 @@ public class MovieController {
         return ResponseEntity.status(201).body(response);
     }
 
+    @GetMapping("/count")
+    public ResponseEntity<?> count() {
+        Object response = movieRepository.countMyMovies();
+        return ResponseEntity.status(200).body(response);
+    }
+
+    @GetMapping("/countUnverified")
+    public ResponseEntity<?> countUnverified() {
+        Object response = movieRepository.countUnverified();
+        return ResponseEntity.status(200).body(response);
+    }
+
+    @GetMapping("/countVerified")
+    public ResponseEntity<?> countVerified() {
+        Object response = movieRepository.countVerified();
+        return ResponseEntity.status(200).body(response);
+    }
+
     @PostMapping("/{id}")
     @PreAuthorize("hasRole('MODERATOR') or hasRole('ADMIN')")
     public ResponseEntity<?> updateMovie(@PathVariable Long id, @RequestBody Movie movie) {
@@ -202,7 +218,7 @@ public class MovieController {
     }
 
     @PostMapping("/verify/{id}")
-    @PreAuthorize("hasRole('MODERATOR') or hasRole('ADMIN')")
+    @PreAuthorize("hasRole('ROLE_MODERATOR') or hasRole('ROLE_ADMIN')")
     public ResponseEntity<?> verifyMovie(@PathVariable Long id) {
         Movie movie = movieRepository.findMovieById(id);
         if (movie != null) {
@@ -215,7 +231,7 @@ public class MovieController {
     }
 
     @PostMapping("/unverify/{id}")
-    @PreAuthorize("hasRole('MODERATOR') or hasRole('ADMIN')")
+    @PreAuthorize("hasRole('ROLE_MODERATOR') or hasRole('ROLE_ADMIN')")
     public ResponseEntity<?> unverifyMovie(@PathVariable Long id) {
         Movie movie = movieRepository.findMovieById(id);
         if (movie != null) {

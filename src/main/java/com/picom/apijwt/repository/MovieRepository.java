@@ -13,11 +13,19 @@ import java.util.*;
 @Repository
 public interface MovieRepository extends JpaRepository<Movie, Long> {
 
-    Optional<Movie> findByReleasedAtBetween(Date releasedAtTimeStart, Date releasedAtTimeEnd);
+    @Query("SELECT COUNT(id) FROM Movie")
+    Integer countMyMovies();
+
+    @Query("SELECT COUNT(id) FROM Movie WHERE isVerified = false")
+    Integer countUnverified();
+
+    @Query("SELECT COUNT(id) FROM Movie WHERE isVerified = true")
+    Integer countVerified();
 
     Boolean existsByTitle(String title);
-
     Movie findMovieById(Long id);
+
+    Optional<Movie> findByReleasedAtBetween(Date releasedAtTimeStart, Date releasedAtTimeEnd);
 
     List<Movie> findMoviesByTitleLike(String title);
 
